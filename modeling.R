@@ -18,10 +18,11 @@ max_acc<-0
 best_method="none"
 
 accdf<-data.frame(method="",accuracy=0)
+names(accdf)<-c("method","accuracy")
 accdf<-accdf[-1]
 
 
-for (method in c("rf","svmRadial","C5.0","RRF")) {
+for (method in c("svmRadial","C5.0","RRF","nnet")) {
     print (paste("Running:",method))
     # Fit training 
     fit<-train(as.factor(t1$label)~.,method=method,data=t1)
@@ -35,9 +36,10 @@ for (method in c("rf","svmRadial","C5.0","RRF")) {
     
 
     # Compute Accuracy
-    acc<- sum((pred == t2$label))/length(t2$label)
+    acc<- sum((pred_t2 == t2$label))/length(t2$label)
     print (paste("Accuracy for ",method,":",acc))
-    accdf<-rbind(accdf,c(method,acc))
+    accdf1<-data.frame(method=method,accuracy=toString(acc))
+    accdf = rbind(accdf,accdf1)
     write.csv(accdf,"accuracy.csv",row.names=FALSE)
     
     if (acc>max_acc) {
@@ -61,6 +63,7 @@ for (method in c("rf","svmRadial","C5.0","RRF")) {
     # Save Aggregate
     write.csv(t1_predictions,"t1_predictions.csv",row.names=FALSE)
     write.csv(t2_predictions,"t2_predictions.csv",row.names=FALSE)
+    write.csv(test_predictions,"test_predictions.csv",row.names=FALSE)
 
     # NOW create prediction for test set
     result <- pred_test
