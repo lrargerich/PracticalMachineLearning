@@ -1,0 +1,105 @@
+---
+title: "How Well do You Lift?"
+author: "Frog"
+date: "Wednesday, August 06, 2014"
+output: html_document
+---
+
+### Abstract
+
+The goal of this project is to use machine learning over a set of measurements taken from 
+accelerometers in different body parts (OMG!) of the participants to predict how well they
+did a given excercise.
+
+The first step is to load the dataset
+
+```{r}
+library(caret)
+train<-read.csv("pml-training.csv")
+test<-read.csv("pml-testing.csv")
+```
+
+Now erform the cleanup. I decided to only use sensor measures as predictors.
+
+I followed these steps:
+
+1. Remove all columns that won't be used as predictors
+2. Pull problem_id from test set and classe from training set (ids and labels)
+3. Convert all values to numeric
+4. Input missing values using the median
+5. Center and Scale
+6. Perform PCA to keep 90% of the variability
+
+I decided to use PCA because we had many features and they were very sparse. Dimensionality
+can be reduced using PCA, an Autoencoder or other methods. I choose PCA because it is what 
+we used in this course. (I suspect an Autoencoder will work better!)
+
+```{r}
+# Remove columns that won't be used as predictors
+train$X<-NULL;test$X<-NULL
+train$user_name<-NULL;test$user_name<-NULL
+train$raw_timestamp_part_1<-NULL;test$raw_timestamp_part_1<-NULL
+train$raw_timestamp_part_2<-NULL;test$raw_timestamp_part_2<-NULL
+train$cvtd_timestamp<-NULL;test$cvtd_timestamp<-NULL
+train$new_window<-NULL;test$new_window<-NULL
+train$num_window<-NULL;test$num_window<-NULL
+
+id<-as.data.frame(test$problem_id)
+names(id)<-"problem)id"
+labels<-as.data.frame(as.factor(train$classe))
+names(labels)<-"label"
+
+
+# convert all to numeric
+asNumeric <- function(x) as.numeric(as.character(as.numeric(x)))
+factorsNumeric <- function(d) modifyList(d, lapply(d[, sapply(d, is.factor)],   
+                                                   asNumeric))
+train<-factorsNumeric(train)
+test<-factorsNumeric(test)
+
+
+train$classe<-NULL
+test$problem_id<-NULL
+
+# Input missing values, center, scale and dimensionality reduction
+obj<-preProcess(train,method=c("medianImpute","center","scale"))
+train<-predict(obj,train)
+test<-predict(obj,test)
+objpca<-preProcess(train,method="pca",thresh=0.9)
+train<-predict(objpca,train)
+test<-predict(objpca,test)
+
+# add the label again
+train<-cbind(labels,train)
+```
+
+Now I split the training set in 70% to train a classification algorithm and 30% to validate it. (cross validation)
+
+```{r}
+intTr<-createDataPartition(y=train$label,p=0.7,list=FALSE)
+t1<-train[intTr,]
+t2<-train[-intTr,]
+rm(intTr)
+```
+
+The next step was to train different models to see how they perform you can check the
+source file modeling.R for the code. This step is not needed to reproduce the predictions,
+just to find out which model to use. I tried the following predictors using caret:
+
+1. Gradient Boosted Machines (gbm)
+2. Random Forests (rf)
+3. SVM with Radial Kernel (svmRadial)
+4. C5.0 Tree (C5.0)
+5. Regularized Random Forest (RRF)
+6. Ensamble of methods 1-5 using linear combination
+7. Ensamble of methods 1-5 using random forests
+
+# poner cual fue el winning model
+
+# Hacer la prediccion para test
+
+# Conclusiones finales
+
+
+
+
