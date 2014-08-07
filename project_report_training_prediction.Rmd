@@ -82,24 +82,24 @@ t2<-train[-intTr,]
 rm(intTr)
 ```
 
-I trained a Gradient Booster Machine (gbm):
+I trained a gradient boosting machine (gbm):
 
-```{r results='hide'}
-fit<-train(as.factor(t1$label)~.,method="svmRadial",data=t1)
+```{r eval=FALSE}
+fit<-train(as.factor(t1$label)~.,method="gbm",data=t1)
 ```
 
-```{r}
+```{r eval=FALSE}
 fit
 pred<-predict(fit,t2[,-1])
 acc<- sum((pred == t2$label))/length(t2$label)
-print (paste("Accuracy for ",method,":",acc))
+print (paste("Accuracy for svm:",acc))
 ```
 
-The expected accuracy of the model on my cross validation test is: 95% (wow!)
+The expected accuracy of the model on my cross validation test is: 82% (wow!)
 
 Now I create the submission file
 
-```{r}
+```{r eval=FALSE}
 result<-predict(fit,test)
 submit <- data.frame(problem_id = id, classe = result)
 result<-as.data.frame(result)
