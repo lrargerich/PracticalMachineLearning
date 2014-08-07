@@ -103,7 +103,7 @@ Now I create the submission file
 result<-predict(fit,test)
 submit <- data.frame(problem_id = id, classe = result)
 result<-as.data.frame(result)
-write.csv(submit, file = paste("submit_svm.csv",sep=""), row.names = FALSE)
+write.csv(submit, file = paste("submit.csv",sep=""), row.names = FALSE)
 ```
 
 The final result was that the model got 12 out of 20 test cases right. I plan to ensamble this
