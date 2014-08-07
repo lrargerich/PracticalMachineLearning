@@ -82,24 +82,30 @@ t2<-train[-intTr,]
 rm(intTr)
 ```
 
-The next step was to train different models to see how they perform you can check the
-source file modeling.R for the code. This step is not needed to reproduce the predictions,
-just to find out which model to use. I tried the following predictors using caret:
+I trained a Gradient Boosting Machine (gbm):
 
-1. Gradient Boosted Machines (gbm)
-2. Random Forests (rf)
-3. SVM with Radial Kernel (svmRadial)
-4. C5.0 Tree (C5.0)
-5. Regularized Random Forest (RRF)
-6. Ensamble of methods 1-5 using linear combination
-7. Ensamble of methods 1-5 using random forests
+```{r results='hide'}
+fit<-train(as.factor(t1$label)~.,method="RRF",data=t1)
+```
 
-# poner cual fue el winning model
+```{r}
+fit
+pred<-predict(fit,t2[,-1])
+acc<- sum((pred == t2$label))/length(t2$label)
+print (paste("Accuracy for ",method,":",acc))
+```
 
-# Hacer la prediccion para test
+The expected accuracy of the model on my cross validation test is: 95% (wow!)
 
-# Conclusiones finales
+Now I create the submission file
 
+```{r}
+result<-predict(fit,test)
+submit <- data.frame(problem_id = id, classe = result)
+result<-as.data.frame(result)
+write.csv(submit, file = paste("submit_RRF.csv",sep=""), row.names = FALSE)
+```
 
-
+The final result was that the model got 12 out of 20 test cases right. I plan to ensamble this
+with a SVM, random forest and others to improve the results.
 

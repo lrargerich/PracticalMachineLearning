@@ -22,7 +22,7 @@ names(accdf)<-c("method","accuracy")
 accdf<-accdf[-1]
 
 
-for (method in c("svmRadial","C5.0","RRF","nnet")) {
+for (method in c("svmRadial","knn","C5.0","RRF","nnet")) {
     print (paste("Running:",method))
     # Fit training 
     fit<-train(as.factor(t1$label)~.,method=method,data=t1)
@@ -70,15 +70,15 @@ for (method in c("svmRadial","C5.0","RRF","nnet")) {
     
     ### IMPORTANT TO CHANGE THIS
     submit <- data.frame(problem_id = id, classe = result)
-    
     result<-as.data.frame(result)
-    names(result)<-method
     write.csv(submit, file = paste("submit_",method,".csv",sep=""), row.names = FALSE)
 }
 
 print(paste("Best method was:",best_method,"with accuracy:",max_acc))
 
-for (method in c("gam","rf","LogitBoost")) {
+method="gam"
+
+for (method in c("gam","rf","LogitBoost","nnet")) {
   fit<- train(as.factor(t1_predictions$label)~.,method=method,data=t1_predictions)
   pred<-predict(fit,t2[,-1])
   acc<- sum((pred == t2$label))/length(t2$label)
