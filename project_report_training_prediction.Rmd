@@ -85,7 +85,7 @@ rm(intTr)
 I trained a Gradient Boosting Machine (gbm):
 
 ```{r results='hide'}
-fit<-train(as.factor(t1$label)~.,method="RRF",data=t1)
+fit<-train(as.factor(t1$label)~.,method="svmRadial",data=t1)
 ```
 
 ```{r}
